@@ -1,0 +1,5 @@
+DROP TABLE IF EXISTS tables;
+
+DROP TABLE IF EXISTS schemas;
+
+DROP TABLE IF EXISTS summaries;
