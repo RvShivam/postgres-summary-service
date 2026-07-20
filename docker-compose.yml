@@ -3,21 +3,39 @@ version: "3.9"
 services:
   postgres:
     image: postgres:17
-
     container_name: postgres-summary-db
-
     restart: unless-stopped
-
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: summarydb
-
     ports:
       - "5433:5432"
-
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d summarydb"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build: .
+    container_name: postgres-summary-app
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      PORT: 8080
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: summarydb
+      EXTERNAL_SERVICE_URL: http://external-service.local/api/summary
+    ports:
+      - "8080:8080"
 
 volumes:
   postgres_data:
